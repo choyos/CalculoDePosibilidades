@@ -43,7 +43,9 @@ int main(int argc, char *argv[]){
 
 	//Matriz base de combinaciones
 	int exp4=1;
-	int ** matrixAux1 = NULL;
+	int ** matrixComb = NULL;
+
+	int * posibilidad;
 
 	int numPedidos;
 	int numDiasNo=argc-3;
@@ -296,7 +298,7 @@ int main(int argc, char *argv[]){
 							limite=limite*2;
 						}
 						
-						int * posibilidad;
+
 						inicializaVector(horizonte, &posibilidad);
 						int num;
 						int noCumple;
@@ -358,198 +360,108 @@ int main(int argc, char *argv[]){
 												
 												int divisor = exp4/medicine.nTamPedidos; //Variable auxiliar para acceder al vector de la forma adecuada
 												//Matriz de combinaciones
-												inicializaMatriz(exp4, numPedidos, &matrixAux1);
+												inicializaMatriz(exp4, numPedidos, &matrixComb);
 												
 												for(j=0;j<numPedidos;j++){	//Luego por filas
 													for(i=0;i<exp4;i++){	//Primero por columnas
-														matrixAux1[i][j]=medicine.vTamPedidos[(i/divisor)%medicine.nTamPedidos];
+														matrixComb[i][j]=medicine.vTamPedidos[(i/divisor)%medicine.nTamPedidos];
 													}
 													divisor=divisor/medicine.nTamPedidos;	//Disminuimos la auxiliar para acceder a la posicion correcta
 												}
 
 												//Imprimimos la matriz por pantalla
-												imprimeMatriz(exp4, numPedidos, matrixAux1);												
+												printf("Matriz combinacional\n");
+												imprimeMatriz(exp4, numPedidos, matrixComb);												
 											}
 
 											matrix = NULL;
-											
+											n = 0;
 											inicializaMatriz(exp4, horizonte, &matrix);
 											
 											// Bucles para la obtencion de la matriz definitiva
-												for(k=0;k<exp4;k++){		// Accedemos todas las veces de las combinaciones posibles
-													for(j=0;j<horizonte;j++){		// En el recorrido
-														if(posibilidad[j]==1){	// Si es 1 se cambia por el valor correspondiente
-															matrix[n][j]=posibilidad[j]*matrixAux1[k][g];
-															g++;
-															
-														}else{	//Si es 0 se deja igual
-															matrix[n][j] = posibilidad[j];
-														}							
-													}
-													g=0;	//Al finalizar cada pasada reiniciamos el contador g a 0
-													n++;	//Y pasamos a rellenar la siguiente fila
+											for(k=0;k<exp4;k++){		// Accedemos todas las veces de las combinaciones posibles
+												for(j=0;j<horizonte;j++){		// En el recorrido
+													if(posibilidad[j]==1){	// Si es 1 se cambia por el valor correspondiente
+														matrix[n][j]=posibilidad[j]*matrixComb[k][g];
+														g++;
+														
+													}else{	//Si es 0 se deja igual
+														matrix[n][j] = posibilidad[j];
+													}							
 												}
-												imprimeMatriz(exp4, horizonte, matrix);
-												free(matrix);
+												g=0;	//Al finalizar cada pasada reiniciamos el contador g a 0
+												n++;	//Y pasamos a rellenar la siguiente fila
 											}
 
-											//Calculo de J
+//------------------------------------------Calculo de J------------------------------------------------------//
+											// Una vez obtenidas todas las posibles combinaciones
+											// para un determinado horizonte, procedemos al cálculo
+											// y consiguiente obtención de los días de pedidos
+											// útiles para el farmaceútico
+											
+											int x;
+											float J;
+											float Jmin;
+											int *stock;
+											inicializaVector(horizonte, &stock);
+											int *stockOptimo;
+											inicializaVector(horizonte, &stockOptimo);
+											int *vectorOptimo;
+											inicializaVector(horizonte, &vectorOptimo);
+
+											for(x=0; x<n; x++){
+												inicializa(stock, horizonte);
+												J = evalua(matrix[x], horizonte, 0, stock, &medicine);
+											//	printf("\n%d->\tJ = %f\n",x,J);
+												if(x==0){
+													Jmin = J;
+													for(k=0; k<horizonte; k++){
+														vectorOptimo[k]=matrix[x][k];
+														stockOptimo[k]=stock[k];
+													}
+												}
+												if(J <Jmin){
+													Jmin = J;
+													for(k=0; k<horizonte; k++){
+														vectorOptimo[k]=matrix[x][k];
+														stockOptimo[k]=stock[k];
+													}
+												}
+											}
+											//Mover el bloque para imprimir bien por pantalla/salida estandar
+											printf("Jmin= %f\nVector Óptimo de pedido:", Jmin);
+											for(x=0;x<horizonte; x++){
+												printf("%d ",vectorOptimo[x] );
+											}
+											printf("\nStock del pedido óptimo:");
+											for(x=0;x<horizonte; x++){
+												printf("%d ",stockOptimo[x] );
+											}
+											printf("\n");
+
+											//char **FechasOptimas;
+											int ** FechasPedido;
+											inicializaMatriz(numPedidos, 3, &FechasPedido);
+											//A partir de obtener los valores optimos de días de pedidos
+											//debemos obtener ahora las fechas con su correspondiente valor
+											printf("\n\n");
+											printf("===============\n===Resultado===\n===============\n\n");
+
+											obtieneFechasPedidos(vectorOptimo, horizonte, FechasPedido);
+											error = Jmin;
+											free(matrix);
 										}
 									}
 								}
 							}
 						}
-
-						free(posibilidad);
-											
-						
-/*----------------------------------------------------------------------------------------
-------------------------Una vez obtenidas las posibilidades de salida---------------------
-------------------------procedemos a la lectura del fichero          ---------------------
-----------------------------------------------------------------------------------------*/
-
-						/*
-								Se realizan las operaciones pertinentes
-								de apertura, lectura y cerrado de fichero
-								con el que intercambiar información con
-								el programa en php para la web.
-								Se almacenan los datos en la estructura 
-								del medicamento.
-						*/
-/*						if(ficheros(horizonte, &medicine)==1){
-							printf("ERROR7: Lectura de fichero no realizada\n");
-							error = -7;
-						}else{
-							
-/*----------------------------------------------------------------------------------------
-------------------------Procedemos al calculo de la matriz con las posibilidades----------
-------------------------de pedido                                               ----------
-----------------------------------------------------------------------------------------*/
-							//Inicializamos variables auxiliares utiles para la obtención 
-							//de las matrices pertinentes
-							int g=0;
-							int h=0;
-							n=0;
-							
-							//Matriz base de combinaciones
-							int exp4=1;
-							//Obtenemos primero el numero de combinaciones posibles								
-							for(i=0;i<numPedidos;i++){
-								exp4=exp4*medicine.nTamPedidos;
-							}
-							
-							int divisor = exp4/medicine.nTamPedidos; //Variable auxiliar para acceder al vector de la forma adecuada
-							//Matriz de combinaciones
-							int **matrixAux1;
-							
-							inicializaMatriz(exp4, numPedidos, &matrixAux1);
-							
-							for(j=0;j<numPedidos;j++){	//Luego por filas
-								for(i=0;i<exp4;i++){	//Primero por columnas
-									matrixAux1[i][j]=medicine.vTamPedidos[(i/divisor)%medicine.nTamPedidos];
-								}
-								divisor=divisor/medicine.nTamPedidos;	//Disminuimos la auxiliar para acceder a la posicion correcta
-							}
-
-							//Imprimimos la matriz por pantalla
-							imprimeMatriz(exp4, numPedidos, matrixAux1);
-
-						//	printf("Numero de posibilidades total: %d\n",filasPedidos*exp4);
-							
-							//Matriz definitiva
-							free(matrix);
-							matrix=NULL;
-							
-							inicializaMatriz(filasPedidos*exp4, horizonte, &matrix);
-							
-							// Bucles para la obtencion de la matriz definitiva
-							for(i=0;i<filasPedidos;i++){	// Por cada fila de la matriz de dias de pedidos y no
-								for(k=0;k<exp4;k++){		// Accedemos todas las veces de las combinaciones posibles
-									for(j=0;j<horizonte;j++){		// En el recorrido
-										if(posibilidad[j]==1){	// Si es 1 se cambia por el valor correspondiente
-											matrix[n][j]=posibilidad[j]*matrixAux1[k][g];
-											g++;
-											
-										}else{	//Si es 0 se deja igual
-											matrix[n][j]=posibilidad[j];
-										}							
-									}
-									g=0;	//Al finalizar cada pasada reiniciamos el contador g a 0
-									n++;	//Y pasamos a rellenar la siguiente fila
-								}
-							}
-							
-							filasPedidos=n;		
-							// Imprimimos por pantalla todas las posibilidades				
-							
-						/*	printf("Matriz posibilidades:\n");
-							imprimeMatriz(filasPedidos, horizonte, matrix); */
-														
-/*							if(filasPedidos==0){
-								printf("ERROR8: No se puede obtener ninguna posibilidad con los datos introducidos\n");
-								error = -8;
-							}else{
-								// Una vez obtenidas todas las posibles combinaciones
-								// para un determinado horizonte, procedemos al cálculo
-								// y consiguiente obtención de los días de pedidos
-								// útiles para el farmaceútico
-								/* evalua(int* pedidos, int horizonte, int retraso, int* stock) */
-/*								int x;
-								float J;
-								float Jmin;
-								int *stock;
-								inicializaVector(horizonte, &stock);
-								int *stockOptimo;
-								inicializaVector(horizonte, &stockOptimo);
-								int *vectorOptimo;
-								inicializaVector(horizonte, &vectorOptimo);
-
-								for(x=0; x<filasPedidos; x++){
-									inicializa(stock, horizonte);
-									J = evalua(matrix[x], horizonte, 0, stock, &medicine);
-								//	printf("\n%d->\tJ = %f\n",x,J);
-									if(x==0){
-										Jmin = J;
-										for(k=0; k<horizonte; k++){
-											vectorOptimo[k]=matrix[x][k];
-											stockOptimo[k]=stock[k];
-										}
-									}
-									if(J <Jmin){
-										Jmin = J;
-										for(k=0; k<horizonte; k++){
-											vectorOptimo[k]=matrix[x][k];
-											stockOptimo[k]=stock[k];
-										}
-									}
-								}
-								printf("Jmin= %f\nVector Óptimo de pedido:", Jmin);
-								for(x=0;x<horizonte; x++){
-									printf("%d ",vectorOptimo[x] );
-								}
-								printf("\nStock del pedido óptimo:");
-								for(x=0;x<horizonte; x++){
-									printf("%d ",stockOptimo[x] );
-								}
-								printf("\n");
-
-								//char **FechasOptimas;
-								int ** FechasPedido;
-								inicializaMatriz(numPedidos, 3, &FechasPedido);
-								//A partir de obtener los valores optimos de días de pedidos
-								//debemos obtener ahora las fechas con su correspondiente valor
-								printf("\n\n");
-								printf("===============\n===Resultado===\n===============\n\n");
-
-								obtieneFechasPedidos(vectorOptimo, horizonte, FechasPedido);
-								error = Jmin;
-							}
-						}
-					*/}
+					}
 				}
 			}
 		}
-	}	
+	}
+	free(matrixComb);
+	free(posibilidad);
 	printf("\n");
 	printf("Tiempo transcurrido: %f\n\n", ((double)clock() - start) / CLOCKS_PER_SEC);	
 	

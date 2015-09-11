@@ -29,7 +29,7 @@ void imprimeMatriz(int numFilas, int numColumnas, int **matriz){
 	for(i=0;i<numFilas;i++){
 		printf("%d->\t",i);
 		for(j=0;j<numColumnas;j++){
-			printf("%d",matriz[i][j]);
+			printf("%d ",matriz[i][j]);
 		}
 	printf("\n");
 	}
