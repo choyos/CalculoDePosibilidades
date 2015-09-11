@@ -35,7 +35,6 @@ int bisiesto(int year){
 void obtieneFechasPedidos(int*v, int tam, int ** FechasPedido){
 	int x;
 	int j=0;
-
 	for(x=0; x<tam; x++){
 		if(v[x]!=0){
 			fechaPedido(x, FechasPedido[j]);
@@ -54,7 +53,6 @@ void fechaHoy(int * fechaActual){
 	time_t t;
 	struct tm *tm;
 	char fechayhora[100];
-	
 	
 	t=time(NULL);
 	tm=localtime(&t);
@@ -86,7 +84,6 @@ void fechaPedido(int dia, int* fecha){
 
 	//Obtenemos hoy
 	fechaHoy(fechaActual);
-	
 	//Al día de hoy le añadimos los días en los que se pide
 	for(i=0; i<3; i++){
 		if(i==0){
@@ -95,6 +92,8 @@ void fechaPedido(int dia, int* fecha){
 			fecha[i]=fechaActual[i];
 		}
 	}
+
+	liberaVector(fechaActual);
 
 	//Procedemos a comprobar que la fecha obtenida es correcta en funcion del número
 	//de días que tiene cada mes para ver las correcciones a realizar.
@@ -197,7 +196,4 @@ void fechaPedido(int dia, int* fecha){
 			fecha[0]=fecha[0]-diasMes;
 				fecha[1]++;
 	}
-
-	//Sacamos por pantalla la fecha final de pedido
-	//printf("%d/%d/%d\n", fechaActual[0], fechaActual[1], fechaActual[2]);
 }

@@ -55,6 +55,21 @@ void inicializaVector(int dim, int **vector){
 	(*vector) = (int*) malloc(dim*sizeof(int));
 }
 
+void liberaMatriz(int numFilas, int ** matriz){
+	int i;
+
+	for(i = 0; i < numFilas; i++){
+		liberaVector(matriz[i]);
+	}
+	free(matriz);
+	matriz = NULL;
+}
+
+void liberaVector(int *vector){
+	free(vector);
+	vector = NULL;
+}
+
 void convIntToBin(int num, int bits,int *posibilidad){
 
 	int i = 0;

@@ -39,7 +39,6 @@ int main(int argc, char *argv[]){
 	MEDICINE medicine;	//Estructura para mantener la información del medicamento
 	//Matriz de posibilidades de pedidos reales
 	int g=0;
-	int h=0;
 
 	//Matriz base de combinaciones
 	int exp4=1;
@@ -51,6 +50,14 @@ int main(int argc, char *argv[]){
 	int numDiasNo=argc-3;
 	int diasMes;
 	int aux=0;
+
+	int x;
+	float J;
+	float Jmin;
+	int *stock;
+	int *stockOptimo;
+	int *vectorOptimo;
+
 	
 	/*Comprobamos que el numero de argumentos recibidos es el correto*/
 	if (argc<3){	
@@ -277,6 +284,8 @@ int main(int argc, char *argv[]){
 											}
 										}
 									}
+									liberaVector(FechaActual);
+									liberaMatriz(numDiasNo, Fecha);
 								}
 							}
 						}
@@ -304,6 +313,9 @@ int main(int argc, char *argv[]){
 						int noCumple;
 						int primeraVez = 0;
 						int ** matrix;
+						//Vectores comunes a todas las iteraciones
+						inicializaVector(horizonte, &stockOptimo);
+						inicializaVector(horizonte, &vectorOptimo);
 
 						for(num = 0; num<limite; num++){
 							//Inicializamos noCumple a 0 para cada posibilidad//
@@ -346,7 +358,7 @@ int main(int argc, char *argv[]){
 												del medicamento.
 										*/
 										//Lectura del fichero
-										if(ficheros(horizonte, &medicine)==1){
+										if(ficheros(horizonte, &medicine) == -1){
 											printf("ERROR7: Lectura de fichero no realizada\n");
 											error = -7;
 										}else{
@@ -368,13 +380,8 @@ int main(int argc, char *argv[]){
 													}
 													divisor=divisor/medicine.nTamPedidos;	//Disminuimos la auxiliar para acceder a la posicion correcta
 												}
-
-												//Imprimimos la matriz por pantalla
-												printf("Matriz combinacional\n");
-												imprimeMatriz(exp4, numPedidos, matrixComb);												
 											}
 
-											matrix = NULL;
 											n = 0;
 											inicializaMatriz(exp4, horizonte, &matrix);
 											
@@ -398,16 +405,8 @@ int main(int argc, char *argv[]){
 											// para un determinado horizonte, procedemos al cálculo
 											// y consiguiente obtención de los días de pedidos
 											// útiles para el farmaceútico
-											
-											int x;
-											float J;
-											float Jmin;
-											int *stock;
+
 											inicializaVector(horizonte, &stock);
-											int *stockOptimo;
-											inicializaVector(horizonte, &stockOptimo);
-											int *vectorOptimo;
-											inicializaVector(horizonte, &vectorOptimo);
 
 											for(x=0; x<n; x++){
 												inicializa(stock, horizonte);
@@ -428,40 +427,50 @@ int main(int argc, char *argv[]){
 													}
 												}
 											}
-											//Mover el bloque para imprimir bien por pantalla/salida estandar
-											printf("Jmin= %f\nVector Óptimo de pedido:", Jmin);
-											for(x=0;x<horizonte; x++){
-												printf("%d ",vectorOptimo[x] );
-											}
-											printf("\nStock del pedido óptimo:");
-											for(x=0;x<horizonte; x++){
-												printf("%d ",stockOptimo[x] );
-											}
-											printf("\n");
-
-											//char **FechasOptimas;
-											int ** FechasPedido;
-											inicializaMatriz(numPedidos, 3, &FechasPedido);
-											//A partir de obtener los valores optimos de días de pedidos
-											//debemos obtener ahora las fechas con su correspondiente valor
-											printf("\n\n");
-											printf("===============\n===Resultado===\n===============\n\n");
-
-											obtieneFechasPedidos(vectorOptimo, horizonte, FechasPedido);
-											error = Jmin;
-											free(matrix);
+											liberaVector(medicine.vTamPedidos);
+											liberaVector(medicine.repartidos);
+											liberaVector(stock);
+											liberaMatriz(exp4, matrix);
 										}
 									}
 								}
 							}
 						}
+						
+						//Mover el bloque para imprimir bien por pantalla/salida estandar
+						printf("Jmin= %f\nVector Óptimo de pedido:", Jmin);
+						numPedidos = 0;
+						for(x=0;x<horizonte; x++){
+							printf("%d ",vectorOptimo[x] );
+							if(vectorOptimo[x] != 0){
+								numPedidos++;
+							}
+						}
+						printf("\nStock del pedido óptimo:");
+						for(x=0;x<horizonte; x++){
+							printf("%d ",stockOptimo[x] );
+						}
+						printf("\n");
+
+						//char **FechasOptimas;
+						int ** FechasPedido;
+						inicializaMatriz(numPedidos, 3, &FechasPedido);
+						//A partir de obtener los valores optimos de días de pedidos
+						//debemos obtener ahora las fechas con su correspondiente valor
+						printf("\n\n");
+						printf("===============\n===Resultado===\n===============\n\n");
+						obtieneFechasPedidos(vectorOptimo, horizonte, FechasPedido);
+						error = Jmin;
+						liberaVector(stockOptimo);
+						liberaMatriz(numPedidos, FechasPedido);
+						liberaVector(vectorOptimo);
+						liberaMatriz(exp4, matrixComb);
+						liberaVector(posibilidad);
 					}
 				}
 			}
 		}
 	}
-	free(matrixComb);
-	free(posibilidad);
 	printf("\n");
 	printf("Tiempo transcurrido: %f\n\n", ((double)clock() - start) / CLOCKS_PER_SEC);	
 	

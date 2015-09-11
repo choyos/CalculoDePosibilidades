@@ -66,7 +66,7 @@ float evalua(int* pedidos, int horizonte, int retraso, int* stock, MEDICINE *med
 	}
 
 	
-	free(orders);		
+	liberaVector(orders);		
 	return J;
 }
 

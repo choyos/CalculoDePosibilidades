@@ -24,5 +24,12 @@ void inicializaMatriz(int numFilas, int numColumnas, int ***matriz);
 //Función para inicializar dinamicamente un vector
 void inicializaVector(int dim, int **vector);
 
+//Función para liberar reserva de los vectores de una matriz
+void liberaMatriz(int numFilas, int ** matriz);
+
+//Función para liberar reserva de un vector
+void liberaVector(int *vector);
+
+
 //Función para convertir de entero a binario con n bits. Devuelve un vector
 void convIntToBin(int num, int bits, int * posibilidad);

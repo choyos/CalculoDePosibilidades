@@ -29,7 +29,7 @@ int ficheros(int horizonte, MEDICINE* med){
 
 	fp = fopen ( "datos.pha" , "r" );
 	if(fp == NULL){	//Caso de no apertura pasar el error 
-		error = 1;
+		error = -1;
 	}else{	//Caso de apertura
 		
 		/*1- Lectura del stock actual*/
