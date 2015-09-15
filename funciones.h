@@ -26,7 +26,7 @@ void EnlazaMedicinasOrdenadas (MEDICINE * medicinaNueva, MEDICINE ** medicinaPri
 
 void BorraMedicina (MEDICINE ** medicinaPrimera); //Borra la lista completa de medicinas liberando la memoria.
 
-void BorraMedicina (MEDICINE **pp);	//Borra un único programa. Esta función se utiliza en la función BorraSolapamientos.
+void BorraMedicina (MEDICINE **pp);	//Borra un único medicamento. Esta función se utiliza en la función BorraSolapamientos.
 
 void BorraLaboratorio (LABORATORY ** ppAnterior);	//Borra la lista completa de laboratorios liberando la memoria. Incluye la función BorraMedicinas, para liberar toda la memoria reservada.
 
