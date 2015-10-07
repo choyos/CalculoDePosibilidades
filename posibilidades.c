@@ -24,9 +24,7 @@ Nombre: César*/
 #define DOMINGO 6
 
 int main(int argc, char *argv[]){
-	printf("\n");
-	clock_t start = clock();  
-	
+	printf("\n");	
     
 	/*Inicialización de variables para la ejecución del programa*/
 	int horizonte;	//Dias en el horizonte
@@ -438,18 +436,25 @@ int main(int argc, char *argv[]){
 						}
 						
 						//Mover el bloque para imprimir bien por pantalla/salida estandar
-						printf("Jmin= %f\nVector Óptimo de pedido:", Jmin);
-						numPedidos = 0;
+						printf("{\"stockOpt\":[");
 						for(x=0;x<horizonte; x++){
-							printf("%d ",vectorOptimo[x] );
+							if(x != 0)
+								printf(",");
+							printf("%d",stockOptimo[x] );
+						}
+						printf("],");
+						printf("\"pedidoOpt\":[");
+						for(x=0;x<horizonte; x++){
+							if(x != 0)
+								printf(",");
+							printf("%d",vectorOptimo[x] );
 							if(vectorOptimo[x] != 0){
 								numPedidos++;
 							}
 						}
-						printf("\nStock del pedido óptimo:");
-						for(x=0;x<horizonte; x++){
-							printf("%d ",stockOptimo[x] );
-						}
+						printf("],");
+						printf("\"Coste_med\":%.2f}", Jmin);
+						numPedidos = 0;
 						printf("\n");
 
 						//char **FechasOptimas;
@@ -457,9 +462,6 @@ int main(int argc, char *argv[]){
 						inicializaMatriz(numPedidos, 3, &FechasPedido);
 						//A partir de obtener los valores optimos de días de pedidos
 						//debemos obtener ahora las fechas con su correspondiente valor
-						printf("\n\n");
-						printf("===============\n===Resultado===\n===============\n\n");
-						obtieneFechasPedidos(vectorOptimo, horizonte, FechasPedido);
 						error = Jmin;
 						liberaVector(stockOptimo);
 						liberaMatriz(numPedidos, FechasPedido);
@@ -471,8 +473,6 @@ int main(int argc, char *argv[]){
 			}
 		}
 	}
-	printf("\n");
-	printf("Tiempo transcurrido: %f\n\n", ((double)clock() - start) / CLOCKS_PER_SEC);	
-	
+	printf("\n");	
 	return error;
 }

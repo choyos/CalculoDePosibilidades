@@ -192,8 +192,5 @@ void fechaPedido(int dia, int* fecha){
 				fecha[2]++;
 			}
 			break;
-		default:
-			fecha[0]=fecha[0]-diasMes;
-				fecha[1]++;
 	}
 }
